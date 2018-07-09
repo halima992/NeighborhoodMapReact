@@ -6,7 +6,6 @@
 
 * [Neighborhood Map](#neighborhood-map)
 * [Project Requirement Specifications](#project-requirement-specifications)
-* [Package MediaWiki
 * [Package MediaWiki](#package-mediaWiki)
 * [Installing From Source](#installing-from-source)
 * [Author](#author)
