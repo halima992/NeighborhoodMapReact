@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import List from './List';
 import scriptLoader from 'react-async-script-loader';
 import fetchJsonp from 'fetch-jsonp';
-
+import escapeRegExp from 'escape-string-regexp';
 import './App.css'
 
 let markers=[] ;
@@ -15,6 +15,7 @@ class App extends Component {
   constructor(props) {
      super(props);
      this.updateMarkers = this.updateMarkers.bind(this);
+
   this.state={
      locations : [
      {title: 'Central Park Zoo', location: {lat: 40.767778, lng: -73.971834}},
@@ -39,7 +40,6 @@ updateData = (newData) => {
 }
 updateQuery = (query)=> {
   this.setState({query:query.trim()});
-  this.updateMarkers(this.state.map);
 }
 
 
@@ -55,14 +55,15 @@ updateQuery = (query)=> {
     this.setState({map:map});
   }
   else {
+    alert('Google Maps failed to load!');
     //Handle the error
     this.setState({requestWasSuccessful: false})
   }
 }
-updateMarkers(map){
+updateMarkers(map,showingLocations){
   //this funtion for determine markers accroding the location also make animation and open windows
   const {locations} = this.state;
-  let showingLocations=locations
+
       showingLocations.map((marker,index)=> {
         //Filter the data that is stored form wikipedia in the state to add them to windows info
     let getData = this.state.data.filter((single)=>marker.title === single[0][0]).map(item2=>
@@ -83,11 +84,12 @@ updateMarkers(map){
       })
 
     let addInfoWindow= new window.google.maps.InfoWindow();
-  addInfoWindow.setContent(  `<div tabIndex="0">
-         <h2>${marker.title}</h2>
-         <p>${getData}</p>
-         <a href=${getLink}>Click Here For More Info</a>
-         </div>`)
+  addInfoWindow.setContent(`<div tabIndex="0">
+           <h2>${marker.title}</h2>
+           <p>${getData}</p>
+           <a href=${getLink}>Click Here For More Info</a>
+           </div>`)
+
         let addmarker = new window.google.maps.Marker({
              map:map,
              position: marker.location,
@@ -114,11 +116,23 @@ updateMarkers(map){
 }
 
 componentDidUpdate(){
-  markers=[];
-  this.updateMarkers(this.state.map)
+  const {locations, query,map} = this.state;
+   let showingLocations=locations
+   if (query){
+     const match = new RegExp(escapeRegExp(query),'i')
+     showingLocations = locations.filter((location)=> match.test(location.title))
+   }
+   else{
+     showingLocations=locations
+   }
+   markers.forEach(mark => { mark.setMap(null) });
+   markers=[];
+
+  this.updateMarkers(this.state.map,showingLocations)
 
 }
         componentDidMount(){
+          window.gm_authFailure = this.gm_authFailure;
           //fetch data from wibikedia
            this.state.locations.map((location,index)=>{
              return fetchJsonp(`https://en.wikipedia.org/w/api.php?action=opensearch&search=${location.title}&format=json&callback=wikiCallback`)
@@ -126,29 +140,44 @@ componentDidUpdate(){
                let newData = [...this.state.data,[responseJson,responseJson[2][0],responseJson[3][0]]]
                this.updateData(newData)
              }).catch(error =>
-             console.error(error)
+             alert(error)
              )
            })
          }
 
 
+         //this function for triger item when list clicked
+         itemOfList = (item) => {
+           let selected = markers.filter((currentOne)=> currentOne.name === item.title)
+         window.google.maps.event.trigger(selected[0], 'click');
+           }
+
+           gm_authFailure(){
+               window.alert("Google Maps error!")
+           }
+
 
   render() {
-    const {requestWasSuccessful} = this.state;
-
+    let Showinglist;
+    const {requestWasSuccessful,locations,query} = this.state;
+    if(query){const match = new RegExp(escapeRegExp(query), 'i')
+    Showinglist = locations.filter((location) => match.test(location.title))}
+    else {
+      Showinglist=locations
+    }
     return (
       // if the request for load map  Successful
      requestWasSuccessful ?(  <div id="container">
 	      <div id="container-second">
-          <List
-          locations={this.state.locations}
-                      settingQuery={(query) => {this.updateQuery(query)}}
-                      markers={markers}
-                      map={this.state.map}
+        <List
+                   locations={this.state.locations}
+                    settingQuery={(query) => {this.updateQuery(query)}}
+                    settingList={this.itemOfList}
+                    markers={markers}
+                    map={this.state.map}/>
 
-          />
-        <div id='map-container'tabIndex="-1">
-      <div id="map" ref="map" ></div>
+        <div id='map-container' tabIndex="-1">
+      <div id="map" ref="map"></div>
       </div>
       </div>
       </div>):
