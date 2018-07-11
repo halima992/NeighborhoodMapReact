@@ -8,6 +8,7 @@ import './App.css'
 
 let markers=[] ;
 let infoWindows=[];
+let wikiRequestTimeout;
 //these virable for change color
 let DefualtIcon ='http://chart.googleapis.com/chart?chst=d_map_spin&chld=.75|0|FFFFFF|20|_|%E2%80%A2'
 let ChangeIcon ='http://chart.googleapis.com/chart?chst=d_map_spin&chld=.75|0|20b2aa|20|_|%E2%80%A2'
@@ -140,10 +141,18 @@ componentDidUpdate(){
                let newData = [...this.state.data,[responseJson,responseJson[2][0],responseJson[3][0]]]
                this.updateData(newData)
              }).catch(error =>
-             alert(error)
+             wikiRequestTimeout()
              )
            })
          }
+         wikiRequestTimeout = setTimeout(function() {
+          alert("Unfortunately, Wikipedia is unavailable. Please try again later.");
+          }, 5000);
+
+
+          gm_authFailure=setTimeout(function(){
+          window.alert("Google Maps error!")
+           },5000);
 
 
          //this function for triger item when list clicked
@@ -176,7 +185,7 @@ componentDidUpdate(){
                     markers={markers}
                     map={this.state.map}/>
 
-        <div id='map-container' tabIndex="-1">
+        <div id='map-container' tabIndex="-1" role="application">
       <div id="map" ref="map"></div>
       </div>
       </div>

@@ -40,11 +40,10 @@ else {
                           </form>
             </header>
             <header className="second">
-             <ul  role="list" tabIndex="1" area-labelledby="list of all locations">
+             <ul  role="list" tabIndex="1" aria-labelledby="list of all locations">
             {Showinglist.map((location,index) =>
-              (<li key={index} role="button" area-labelledby={`view the detiles of ${location.title}`}
-              tabIndex={index+1} onClick={(event)=>settingList(location,event)}>{location.title}</li>))}
-
+              (<li key={index} role="button"tabIndex={index+1}
+              onClick={(event)=>settingList(location,event)}>{location.title}</li>))}
              </ul>
           </header>
       </div>
