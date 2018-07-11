@@ -27,16 +27,15 @@ else {
             <header className="first">
                     <h1>search</h1>
                           <form>
-                              <div className="form-group">
                                   <input
                                   type="text" id="searchbar" name="searchbar" placeholder="Filter"
                                   role="search"   tabIndex="1"
+                                  aria-labelledby="Search For a Location"
                                  value={ this.state.query }
                                  onChange={(event) => {
                                  this.setState({ query: event.target.value });
                                settingQuery(event.target.value)}
                                 }/>
-                              </div>
                           </form>
             </header>
             <header className="second">

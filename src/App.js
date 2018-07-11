@@ -176,7 +176,7 @@ componentDidUpdate(){
     }
     return (
       // if the request for load map  Successful
-     requestWasSuccessful ?(  <div id="container">
+     requestWasSuccessful ?( <div id="container">
 	      <div id="container-second">
         <List
                    locations={this.state.locations}
@@ -186,7 +186,7 @@ componentDidUpdate(){
                     map={this.state.map}/>
 
         <div id='map-container' tabIndex="-1" role="application">
-      <div id="map" ref="map"></div>
+      <div id="map" ref="map" role="region" ></div>
       </div>
       </div>
       </div>):
